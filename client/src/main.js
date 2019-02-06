@@ -24,6 +24,16 @@ const httpLink = new HttpLink({uri})
 
 const cache = new InMemoryCache({})
 
+const authMiddleware = new ApolloLink((operation, forward) => {
+  const token = localStorage.getItem('user-token')
+  operation.setContext({
+    headers: {
+      authorization: token ? `Bearer ${token}` : null
+    }
+  })
+  return forward(operation)
+})
+
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
     graphQLErrors.map(({ message, locations, path }) =>
@@ -37,6 +47,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 const client = new ApolloClient({
   link: ApolloLink.from([
     errorLink,
+    authMiddleware,
     httpLink
   ]),
   cache,
