@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const moment = require('moment')
 const nodeMailer = require('nodemailer')
 const { welcomeEmail } = require('./emails')
+const { getUserId } = require('./utils')
 
 const transporter = nodeMailer.createTransport({
     host: 'smtp.gmail.com',
@@ -30,9 +31,30 @@ const avatarColors = [
 
 const resolvers = {
   Query: {
-		test (_, args, context) {
-			return 'Hello World!!'
-		}
+    async getTeam (_, args, context) {
+      const userId = getUserId(context)
+      const user = await User.findById(userId)
+      return await Team.findById(user.team)
+    },
+    async getFolders (_, {parent}, context) {
+      const userId = getUserId(context)
+      if (parent) {
+        return await Folder.find({parent})
+      } else {
+        const user = await User.findById(userId)
+        const groups = await Group.find({users: ObjectId(userId)}, '_id')
+        const ids = groups.map(o => o._id).concat(
+          ['External User', 'Collaborator'].includes(user.role)
+          ? [ObjectId(userId)]
+          : [ObjectId(userId), user.team]
+        )
+        return await Folder.find({ 'shareWith.item': ids }).populate('shareWith')
+      }
+    },
+    async getFolder (_, {id}, context) {
+      const userId = getUserId(context)
+      return await Folder.findById(id).populate('shareWith')
+    },
   },
   Mutation: {
     async captureEmail (_, {email}) {
@@ -46,7 +68,7 @@ const resolvers = {
         status: 'Pending'
       })
       // Uncomment this to send the email
-      transporter.sendMail(welcomeEmail(email, user))
+      // transporter.sendMail(welcomeEmail(email, user))
 
       return user
     },
