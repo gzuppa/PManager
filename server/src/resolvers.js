@@ -5,6 +5,8 @@ const moment = require('moment')
 const nodeMailer = require('nodemailer')
 const { welcomeEmail } = require('./emails')
 const { getUserId } = require('./utils')
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId
 
 const transporter = nodeMailer.createTransport({
     host: 'smtp.gmail.com',
@@ -16,7 +18,7 @@ const transporter = nodeMailer.createTransport({
     }
 })
 
-const { User, Team } = require('./models')
+const { User, Team, Folder, Group } = require('./models')
 
 const JWT_SECRET = process.env.JWT_SECRET
 
