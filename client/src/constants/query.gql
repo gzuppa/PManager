@@ -1,8 +1,125 @@
+fragment TaskFields on Task {
+  id
+  name
+  parent {
+    id
+    name
+  }
+  folders {
+    id
+    name
+  }
+  assignees {
+    id
+    name
+    firstname
+    lastname
+    avatarColor
+  }
+  creator {
+    id
+    name
+    firstname
+    lastname
+  }
+  description
+  shareWith
+  startDate
+  finishDate
+  duration
+  importance
+  status
+  order
+  createdAt
+}
+
+fragment LogFields on Log {
+  id
+  body
+  status
+  user {
+    id
+    firstname
+    lastname
+    avatarColor
+  }
+  target
+  createdAt
+}
+
+fragment FolderFields on Folder {
+  id
+  name
+  parent
+  description
+  shareWith
+  createdAt
+}
+
+fragment ProjectFields on Project {
+  id
+  name
+  shareWith
+  owners {
+    id
+    name
+  }
+  startDate
+  finishDate
+  status
+}
+
+fragment UserFields on User {
+  id
+  name
+  firstname
+  lastname
+  email
+  jobTitle
+  avatarColor
+  role
+  rate
+  rateType
+  status
+  readNotificationsAt
+  appearance
+  createdAt
+}
+
+fragment GroupFields on Group {
+  id
+  team
+  name
+  initials
+  avatarColor
+  users
+}
+
+fragment RecordFields on Record {
+  id
+  user
+  task {
+    id
+    name
+  }
+  date
+  timeSpent
+  comment
+}
+
 mutation CaptureEmail($email: String!) {
   captureEmail(email: $email) {
     id
     email
   }
+}
+
+mutation Invite($emails: [String], $groups: [String], $role: String) {
+  invite(emails: $emails, groups: $groups, role: $role) { ...UserFields }
+}
+
+mutation Decline($id: String!) {
+  decline(id: $id)
 }
 
 mutation Signup($id: String!, $firstname: String!, $lastname: String!, $password: String!) {
@@ -25,6 +142,97 @@ mutation Login($email: String!, $password: String!) {
   }
 }
 
+mutation CreateTask($folder: String, $parent: String, $name: String!) {
+  createTask(folder: $folder, parent: $parent, name: $name) { ...TaskFields }
+}
+
+mutation UpdateTask($id: String!, $input: TaskInput) {
+  updateTask(id: $id, input: $input) { ...TaskFields }
+}
+
+mutation DeleteTask($id: String!) {
+  deleteTask(id: $id)
+}
+
+mutation CreateFolder($parent: String, $name: String!, $shareWith: [ShareInput]) {
+  createFolder(parent: $parent, name: $name, shareWith: $shareWith) {
+    ...FolderFields
+  }
+}
+
+mutation CreateProject($parent: String, $name: String!, $shareWith: [ShareInput],
+                       $owners: [String], $startDate: Date, $finishDate: Date) {
+  createProject(parent: $parent, name: $name, shareWith: $shareWith,
+                owners: $owners, startDate: $startDate, finishDate: $finishDate) {
+    ...FolderFields
+  }
+}
+
+mutation UpdateFolder($id: String!, $input: FolderInput) {
+  updateFolder(id: $id, input: $input) { ...FolderFields }
+}
+
+mutation SortFolders($folders: [String], $orders: [Float], $parent: String) {
+  sortFolders(folders: $folders, orders: $orders, parent: $parent) {
+    ...FolderFields
+  }
+}
+
+
+mutation DeleteFolder($id: String!) {
+  deleteFolder(id: $id)
+}
+
+mutation CreateGroup($name: String, $initials: String, $avatarColor: String, $users: [String]) {
+  createGroup(name: $name, initials: $initials, avatarColor: $avatarColor, users: $users) {
+    ...GroupFields
+  }
+}
+
+mutation AddUsersToGroup($id: String!, $users: [String]) {
+  addUsersToGroup(id: $id, users: $users) {
+    ...GroupFields
+  }
+}
+
+mutation RemoveUsersFromGroup($id: String!, $users: [String]) {
+  removeUsersFromGroup(id: $id, users: $users) {
+    ...GroupFields
+  }
+}
+
+mutation UpdateGroup($id: String!, $name: String, $initials: String, $avatarColor: String) {
+  updateGroup(id: $id, name: $name, initials: $initials, avatarColor: $avatarColor) {
+    ...GroupFields
+  }
+}
+
+mutation DeleteGroup($id: String!) {
+  deleteGroup(id: $id)
+}
+
+mutation UpdateUser($id: String, $input: UserInput) {
+  updateUser(id: $id, input: $input) { ...UserFields }
+}
+
+mutation SortTasks($tasks: [String], $orders: [Float], $parent: String, $folder: String) {
+  sortTasks(tasks: $tasks, orders: $orders, parent: $parent, folder: $folder) {
+    ...TaskFields
+  }
+}
+
+mutation CreateRecord($input: RecordInput) {
+  createRecord(input: $input) { ...RecordFields }
+}
+
+mutation UpdateRecord($id: String!, $input: RecordInput) {
+  updateRecord(id: $id, input: $input) { ...RecordFields }
+}
+
+mutation DeleteRecord($id: String!) {
+  deleteRecord(id: $id)
+}
+
 query GetTeam {
   getTeam {
     id
@@ -32,22 +240,58 @@ query GetTeam {
   }
 }
 
-fragment FolderFields on Folder {
-  id
-  name
-  parent
-  description
-  shareWith
+query GetUser($id: String) {
+  getUser(id: $id) { ...UserFields }
 }
+
+query GetUsers {
+  getUsers { ...UserFields }
+}
+
+query GetGroups {
+  getGroups { ...GroupFields }
+}
+
 query GetFolders($parent: String) {
   getFolders(parent: $parent) { ...FolderFields }
 }
+
 query GetFolder($id: String!) {
   getFolder(id: $id) { ...FolderFields }
 }
 
-mutation CreateFolder($parent: String, $name: String!) {
-  createFolder(parent: $parent, name: $name) {
-    ...FolderFields
-  }
+query GetTasks($parent: String, $folder: String) {
+  getTasks(parent: $parent, folder: $folder) { ...TaskFields }
+}
+
+query GetTask($id: String!) {
+  getTask(id: $id) { ...TaskFields }
+}
+
+query GetAllTasks($folder: String!) {
+  getAllTasks(folder: $folder) { ...TaskFields }
+}
+
+query GetRecord($id: String, $task: String, $date: String) {
+  getRecord(id: $id, task: $task, date: $date) {...RecordFields }
+}
+
+query GetRecords($id: String, $date: String) {
+  getRecords(id: $id, date: $date) { ...RecordFields }
+}
+
+query GetLogs {
+  getLogs { ...LogFields }
+}
+
+query GetComments($target: String) {
+  getComments(target: $target) { ...LogFields }
+}
+
+mutation CreateComment($body: String, $target: ShareInput) {
+  createComment(body: $body, target: $target) { ...LogFields }
+}
+
+mutation DeleteComment($id: String!) {
+  deleteComment(id: $id)
 }
