@@ -1,21 +1,26 @@
 <template>
-  <div class="modal-mask white" @click="$emit('close')">
+  <div class="modal-mask" @click="$emit('close')">
     <div class="modal-wrapper">
-      <div class="modal-container" @click.stop="$store.commit('changeActiveWidget', null)">
-<h3>Create folder</h3>
-<el-form :model="form" @submit.native.prevent="createFolder">
+      <div class="modal-container" @click.stop="$store.dispatch('changeActiveWidget', null)">
+
+        <h3>Create {{mode}}</h3>
+
+        <el-form :model="form" @submit.native.prevent="createFolder">
           <el-input type="text" name="foldername" ref="foldername" v-model="form.name"
-            placeholder="folder name" @keyup.esc="$emit('close')">
+            :placeholder="`${mode} name`" :autofocus="true" @keyup.esc="$emit('close')">
           </el-input>
         </el-form>
-<div class="button-group">
+
+        <div class="button-group">
           <el-button type="primary" @click="createFolder">Create</el-button>
           <el-button type="text" @click="$emit('close')">Cancel</el-button>
         </div>
-</div>
+
+      </div>
     </div>
   </div>
 </template>
+
 <script>
 import { CreateFolder, GetFolders } from '../constants/query.gql'
 export default {
@@ -24,7 +29,9 @@ export default {
     return {
       form: {
         name: '',
-      }
+        shareWith: [],
+      },
+      mode: this.config.mode
     }
   },
   mounted() {
@@ -32,12 +39,12 @@ export default {
   },
   methods: {
     createFolder() {
-      const { name } = this.form
+      const { name, shareWith } = this.form
       if (!name) return
       const parent = this.config.parent
       this.$apollo.mutate({
         mutation: CreateFolder,
-        variables: {name, parent},
+        variables: {name, parent, shareWith},
         update: (store, { data: { createFolder } }) => {
           const variables = parent ? { parent } : {}
           try {
@@ -65,6 +72,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 .modal-container {
   width: 400px;
