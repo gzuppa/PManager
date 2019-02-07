@@ -1,14 +1,18 @@
 <template>
   <el-container>
     <el-header >
+      <navigation></navigation>
     </el-header>
-<el-main>
+
+    <el-main>
       <div class="container-center">
-        <div>Welcome to enamel! Finish setting up your account</div>
-<div v-if="error" class="error">
+        <div>Welcome to enamel! Finish setting up your account</div>        
+
+        <div v-if="error" class="error">
           {{ error }}
         </div>
-<el-form ref="form" :model="form">
+
+        <el-form ref="form" :model="form">
           <el-form-item>
             <label>First name</label>
             <el-input v-model="form.firstname" placeholder="Your first name"></el-input>
@@ -21,12 +25,15 @@
             <el-button type="primary" @click="signup">Complete</el-button>
           </el-form-item>
         </el-form>
-</div>
-</el-main>
-  </el-container>
-</template>
-<script>
 
+      </div>
+
+    </el-main>
+  </el-container>
+
+</template>
+
+<script>
 import { Signup } from '../constants/query.gql'
 export default {
   data() {
@@ -41,8 +48,7 @@ export default {
   },
   methods: {
     async signup() {
-    this.$apollo.provider.clients.defaultClient.cache.reset()
-
+      // const validated = await this.$validator.validate()
       const { firstname, lastname, password } = this.form
       if (!(firstname && lastname && password)) {
         this.error = 'Please complete the form'
@@ -61,7 +67,6 @@ export default {
         const token = signup.token
         this.saveUserData(id, token)
         this.$router.push({name: 'workspace'})
-        console.log('success!') // For now just print
       }).catch((error) => {
         this.error = 'Something went wrong'
         console.log(error)
@@ -75,6 +80,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 .el-button {
   width: 100%;
