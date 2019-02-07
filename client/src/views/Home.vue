@@ -1,6 +1,7 @@
 <template>
   <el-container>
     <el-header>
+      <navigation></navigation>
     </el-header>
 
     <el-main>
@@ -39,6 +40,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import { CaptureEmail } from '../constants/query.gql'
 import { validateEmail } from '@/helpers/helpers'
 export default {
@@ -51,8 +53,11 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapState(['userId'])
+  },
   methods: {
-    capture() {
+    async capture() {
       const {email} = this.form
       if (!email || !validateEmail(email)) {
         this.error = 'Please enter a valid email'
@@ -64,8 +69,7 @@ export default {
       }).then(({data}) => {
         this.submitted = true
         this.error = false
-        // For development only
-        console.log(data.captureEmail.id)
+        // this.id = data.captureEmail.id
       }).catch((error) => {
         if (error.graphQLErrors.length >= 1) {
           this.error = error.graphQLErrors[0].message            
