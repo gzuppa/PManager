@@ -13,11 +13,12 @@
     "apollo-link-error": "1.1.0",
     "apollo-link-http": "1.5.4",
     "element-ui": "2.4.3",
+    "emoji-mart-vue": "^2.6.6",
     "graphql": "0.13.2",
     "graphql-tag": "2.9.2",
     "moment": "2.22.2",
-    "vue-apollo": "3.0.0-beta.19",
     "vue": "^2.5.22",
+    "vue-apollo": "3.0.0-beta.19",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
   },
