@@ -9,6 +9,7 @@
     </svg>
   </div>
 </template>
+
 <script> 
 export default {
   name: 'plus-button',
@@ -22,11 +23,12 @@ export default {
       plusColor: {
         'white': '#fff',
         'grey': 'rgba(0, 0, 0, 0.32)',
-}      
+      }      
     }
   }
 }
 </script>
+
 <style scoped>
 .plus-button {
   display: flex;
